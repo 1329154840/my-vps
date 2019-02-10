@@ -53,7 +53,8 @@ after those set up above, we can login as a normal user by ssh
 ```bash
 sudo apt update && sudo apt upgrade -y \
   && sudo apt install zsh vim git tree mlocate python3-pip -y \
-  && sudo apt install build-essential cmake python3-dev -y
+  && sudo apt install build-essential cmake \
+     python3-dev python3-pip -y
 ```
 
 ### Use oh-my-zsh as shell
@@ -81,6 +82,7 @@ set up you-complete-me
 cd ~/.vim_runtime/my_plugins
 git clone https://github.com/Valloric/YouCompleteMe.git --depth 1
 cd YouCompleteMe
+git submodule update --init --recursive
 sudo pip3 install future
 # all options: --ts-completer --java-completer --rust-completer 
 #   --go-completer --clang-completer --cs-completer
@@ -104,6 +106,7 @@ apt install shadowsocks
 vim /etc/shadowsocks/config.json
 ## ...
 # set up your server here
+# remember to put your port in whitelist if enabled ufw
 ## ...
 
 # we use systemctl to keep the server runs backend
@@ -126,6 +129,22 @@ Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target
+```
+
+### Use Google BBR
+
+Google BBR is a TCP crowd controll algorithm, which could provide much better network experience.
+
+Make sure your VPS used KVM and kernel version is greate that 4.9
+
+```bash
+lsmod | grep bbr
+
+modprobe tcp_bbr
+echo "tcp_bbr" >> /etc/modules-load.d/modules.conf
+echo "net.core.default_qdisc=fq" >> /etc/sysctl.conf
+echo "net.ipv4.tcp_congestion_control=bbr" >> /etc/sysctl.conf
+sysctl -p
 ```
 
 ### Generate locale file
@@ -163,6 +182,7 @@ git init --bare
 # edit post-receive hook
 vim hooks/post-receive
 chmod +x hooks/post-receive
+sudo chown -R  lecoan:lecoan /var/www
 ```
 
 A example Nginx config file:
